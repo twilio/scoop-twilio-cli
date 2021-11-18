@@ -1,16 +1,18 @@
+param(
+    [String] $version = ''
+)
+
 echo "Git configurations"
 git config --global user.email "team_interfaces+github@twilio.com"
 git config --global user.name "twilio-dx"
-branch=$(git branch --show-current)
-
-echo "Current branch: $branch"
+$branch=git branch --show-current
 
 git add -A
-if [ -n "$(git status --porcelain)" ]; then
-    echo "There are changes to commit.";
+$git_status=git status --porcelain
+if ($git_status -ne $null) {
     git commit -m "Update manifest to version $version"
     git push origin "$branch"
-else
+} else {
     echo "No changes to commit";
-    exit
-fi
+    Exit 1
+}

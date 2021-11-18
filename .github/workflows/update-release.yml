@@ -34,11 +34,7 @@ jobs:
           }
       - name: Commit Changes
         run: |
-          git config --global user.email "team_interfaces+github@twilio.com"
-          git config --global user.name "twilio-dx"
-          branch=$(git branch --show-current)
-          git commit -m "Update manifest to version $version"
-          git push origin "$branch"
+          .\bin\commit-release.ps1 -version ${{github.event.inputs.version}}
 
   release:
     runs-on: ubuntu-latest
