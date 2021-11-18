@@ -34,7 +34,7 @@ jobs:
           }
       - name: Commit Changes
         run: |
-          .\bin\commit-release.ps1 -version ${{github.event.inputs.version}}
+          .\.github\scripts\commit-release.ps1 -version ${{github.event.inputs.version}}
 
   release:
     runs-on: ubuntu-latest
