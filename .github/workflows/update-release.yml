@@ -40,7 +40,7 @@ jobs:
         uses: actions/checkout@v2
       - name: Commit manifest
         run: |
-          source .github/scripts/update-formula.sh "${{github.event.inputs.version}}"
+          source .github/scripts/commit-release.sh "${{github.event.inputs.version}}"
       - name: Create a GitHub release
         uses: ncipollo/release-action@v1
         with:
