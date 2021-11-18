@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Version to be tagged in release',
+        description: 'Version to be tagged in release'
         required: true
 
 jobs:
