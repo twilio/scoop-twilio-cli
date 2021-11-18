@@ -1,5 +1,5 @@
 version=$1
-if [ "$version" == '' ] || [ "$sha" == '' ]; then
+if [ "$version" == '' ]; then
   exit
 fi
 
@@ -13,7 +13,7 @@ echo "Current branch: $branch"
 git add -A
 if [ -n "$(git status --porcelain)" ]; then
     echo "There are changes to commit.";
-    git commit -m "Update manifest to version ${{ github.event.inputs.version }}"
+    git commit -m "Update manifest to version $version"
     git push origin "$branch"
 else
     echo "No changes to commit";
