@@ -19,12 +19,12 @@ jobs:
         run: |
           Invoke-Expression (New-Object System.Net.WebClient).DownloadString('https://get.scoop.sh')
           echo "$env:SCOOP\shims" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
-      - name: Check Versions
+      - name: Update Manifest
         run: |
-          .\bin\checkver.ps1
-      - name: Check Urls
+          .\bin\updatever.ps1
+      - name: Verify Urls
         run: |
-          # Running once for the logs, once for error handling
+          # Running once for logging, once for error handling
           .\bin\checkurls.ps1
           .\bin\checkurls.ps1 6> results.txt
           $error_string = Select-String -Path results.txt -Pattern "error"
