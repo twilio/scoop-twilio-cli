@@ -21,12 +21,12 @@ jobs:
           echo "$env:SCOOP\shims" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
       - name: Update Manifest
         run: |
-          .\bin\updatever.ps1
+          .\scripts\updatever.ps1
       - name: Verify Urls
         run: |
           # Running once for logging, once for error handling
-          .\bin\checkurls.ps1
-          .\bin\checkurls.ps1 6> results.txt
+          .\scripts\checkurls.ps1
+          .\scripts\checkurls.ps1 6> results.txt
           $error_string = Select-String -Path results.txt -Pattern "error"
           if ($error_string -ne $null) {
               echo "URLS are misconfigured!"
@@ -34,7 +34,7 @@ jobs:
           }
       - name: Commit Changes
         run: |
-          .\.github\scripts\commit-release.ps1 -version ${{github.event.inputs.version}}
+          .\scripts\commit-release.ps1 -version ${{github.event.inputs.version}}
 
   release:
     runs-on: ubuntu-latest
