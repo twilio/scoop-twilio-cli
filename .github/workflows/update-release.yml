@@ -32,29 +32,15 @@ jobs:
               echo "URLS are misconfigured!"
               #Exit 1
           }
-      - name: Commit manifest
-        run: |
-          echo "Git configurations"
-          git config --global user.email "team_interfaces+github@twilio.com"
-          git config --global user.name "twilio-dx"
-          branch=$(git branch --show-current)
-
-          echo "Current branch: $branch"
-          git add -A
-          if [ -n "$(git status --porcelain)" ]; then
-            echo "There are changes to commit.";
-            git commit -m "Update manifest to version ${{ github.event.inputs.version }}"
-            git push origin "$branch"
-          else
-            echo "No changes to commit";
-          fi
   release:
     runs-on: ubuntu-latest
     needs: [update-and-verify]
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v2
-      - run: git pull
+      - name: Commit manifest
+        run: |
+          source .github/scripts/update-formula.sh "${{github.event.inputs.version}}"
       - name: Create a GitHub release
         uses: ncipollo/release-action@v1
         with:
