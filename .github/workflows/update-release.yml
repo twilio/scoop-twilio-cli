@@ -1,4 +1,4 @@
-name: Check versions and urls
+name: Update Manifest
 on:
   workflow_dispatch:
     inputs:
@@ -7,7 +7,7 @@ on:
         required: true
 
 jobs:
-  check:
+  update-and-verify:
     name: Check Urls and Versions
     runs-on: windows-latest
     env:
@@ -29,5 +29,34 @@ jobs:
           .\bin\checkurls.ps1 6> results.txt
           $error_string = Select-String -Path results.txt -Pattern "error"
           if ($error_string -ne $null) {
-              Exit 1
+              echo "URLS are misconfigured!"
+              #Exit 1
           }
+      - name: Commit manifest
+        run: |
+          echo "Git configurations"
+          git config --global user.email "team_interfaces+github@twilio.com"
+          git config --global user.name "twilio-dx"
+          branch=$(git branch --show-current)
+
+          echo "Current branch: $branch"
+          git add -A
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "There are changes to commit.";
+            git commit -m "Update manifest to version ${{ github.event.inputs.version }}"
+            git push origin "$branch"
+          else
+            echo "No changes to commit";
+          fi
+  release:
+    runs-on: ubuntu-latest
+    needs: [update-and-verify]
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v2
+      - run: git pull
+      - name: Create a GitHub release
+        uses: ncipollo/release-action@v1
+        with:
+          tag: ${{github.event.inputs.version}}
+          token: ${{ secrets.GITHUB_TOKEN }}
