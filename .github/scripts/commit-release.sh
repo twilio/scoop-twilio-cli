@@ -1,8 +1,3 @@
-version=$1
-if [ "$version" == '' ]; then
-  exit
-fi
-
 echo "Git configurations"
 git config --global user.email "team_interfaces+github@twilio.com"
 git config --global user.name "twilio-dx"

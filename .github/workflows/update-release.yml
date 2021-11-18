@@ -32,15 +32,20 @@ jobs:
               echo "URLS are misconfigured!"
               #Exit 1
           }
+      - name: Commit Changes
+        run: |
+          git config --global user.email "team_interfaces+github@twilio.com"
+          git config --global user.name "twilio-dx"
+          branch=$(git branch --show-current)
+          git commit -m "Update manifest to version $version"
+          git push origin "$branch"
+
   release:
     runs-on: ubuntu-latest
     needs: [update-and-verify]
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v2
-      - name: Commit manifest
-        run: |
-          source .github/scripts/commit-release.sh "${{github.event.inputs.version}}"
       - name: Create a GitHub release
         uses: ncipollo/release-action@v1
         with:
