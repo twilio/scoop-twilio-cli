@@ -35,5 +35,6 @@
                 }
             }
         }
-    }
+    },
+    "post_install": "& $dir\\twilio\\bin\\node.exe $dir\\twilio\\welcome.js"
 }
