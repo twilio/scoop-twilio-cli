@@ -1,0 +1,65 @@
+name: Update Manifest
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to be tagged in release'
+        required: true
+
+jobs:
+  update-and-verify:
+    name: Check Urls and Versions
+    runs-on: windows-latest
+    env:
+      SCOOP: 'C:\Scoop\user'
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install Scoop
+        run: |
+          Invoke-Expression (New-Object System.Net.WebClient).DownloadString('https://get.scoop.sh')
+          echo "$env:SCOOP\shims" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+      - name: Update Manifest
+        run: |
+          .\scripts\updatever.ps1
+      - name: Verify Urls
+        run: |
+          # First run for logging, second for error handling
+          .\scripts\checkurls.ps1
+          .\scripts\checkurls.ps1 6> results.txt
+          $error_string = Select-String -Path results.txt -Pattern "error"
+          if ($error_string -ne $null) {
+              echo "URLS are misconfigured!"
+              Exit 1
+          }
+      - name: Commit Changes
+        run: |
+          .\scripts\commit-release.ps1 -version ${{github.event.inputs.version}}
+
+  release:
+    runs-on: ubuntu-latest
+    needs: [update-and-verify]
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v2
+      - name: Create a GitHub release
+        uses: ncipollo/release-action@v1
+        with:
+          tag: ${{github.event.inputs.version}}
+          token: ${{ secrets.GITHUB_TOKEN }}
+  notify-complete-fail:
+    if: ${{ failure() || cancelled() }}
+    needs: [ release ]
+    name: Notify Release Failed
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Slack Notification
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_WEBHOOK: ${{ secrets.ALERT_SLACK_WEB_HOOK }}
+          SLACK_COLOR: "#ff3333"
+          SLACK_USERNAME: CLI Release Bot
+          SLACK_ICON_EMOJI: ":ship:"
+          SLACK_TITLE: "Twilio Cli"
+          SLACK_MESSAGE: 'Scoop Release Failed'
+          MSG_MINIMAL: actions url
