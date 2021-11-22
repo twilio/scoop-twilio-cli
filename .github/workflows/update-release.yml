@@ -29,7 +29,7 @@ jobs:
           $error_string = Select-String -Path results.txt -Pattern "error"
           if ($error_string -ne $null) {
               echo "URLS are misconfigured!"
-              #Exit 1
+              Exit 1
           }
       - name: Commit Changes
         run: |
