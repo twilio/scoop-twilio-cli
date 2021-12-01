@@ -21,6 +21,10 @@ jobs:
       - name: Update Manifest
         run: |
           .\scripts\updatever.ps1
+      - name: Verify and update hashes
+        run: |
+          # Update hashes in case checksum isn't correctly updated
+          .\scripts\checkhashes.ps1
       - name: Verify Urls
         run: |
           # First run for logging, second for error handling
