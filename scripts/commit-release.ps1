@@ -5,7 +5,12 @@ param(
 echo "Git configurations"
 git config --global user.email "team_interfaces+github@twilio.com"
 git config --global user.name "twilio-dx"
-git add .\twilio.json
+if ($version -like "*draft*") {
+ git add .\twiliodraft.json
+} else {
+ git add .\twilio.json
+}
+
 $git_status=git status --porcelain
 $branch=git branch --show-current
 

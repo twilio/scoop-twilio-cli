@@ -45,11 +45,16 @@ jobs:
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v2
+      - name: Check for release type
+        id: prereleaseflag
+        run : |
+            echo "::set-output name=prerelease::${{ contains(github.event.inputs.version, 'draft' ) }}"  
       - name: Create a GitHub release
         uses: ncipollo/release-action@v1
         with:
           tag: ${{github.event.inputs.version}}
           token: ${{ secrets.GITHUB_TOKEN }}
+          prerelease:  ${{ steps.prereleaseflag.outputs.prerelease }}
   notify-complete-fail:
     if: ${{ failure() || cancelled() }}
     needs: [ release ]
