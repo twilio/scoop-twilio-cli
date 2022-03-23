@@ -16,7 +16,8 @@ jobs:
       - uses: actions/checkout@v2
       - name: Install Scoop
         run: |
-          Invoke-Expression (New-Object System.Net.WebClient).DownloadString('https://get.scoop.sh')
+          (New-Object System.Net.WebClient).DownloadFile('https://get.scoop.sh', 'scoop.ps1') 
+          ./scoop.ps1 -RunAsAdmin
           echo "$env:SCOOP\shims" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
       - name: Update Manifest
         run: |
