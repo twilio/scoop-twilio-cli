@@ -21,7 +21,7 @@ jobs:
           echo "$env:SCOOP\shims" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
       - name: Update Manifest
         run: |
-          .\scripts\updatever.ps1
+          .\scripts\updatever.ps1 -version ${{github.event.inputs.version}}
       - name: Verify and update hashes
         run: |
           # Update hashes in case checksum isn't correctly updated

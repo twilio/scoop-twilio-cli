@@ -5,32 +5,32 @@
     "license": "MIT",
     "architecture": {
         "64bit": {
-            "url": "https://twilio-cli-prod.s3.amazonaws.com/twilio-win32-x64.tar.xz",
+            "url": "https://github.com/twilio/twilio-cli/releases/download/5.1.0/twilio-win32-x64.tar.xz",
             "hash": "ad6d52e5ff3e5f85e7c769b6773ff8c6e30d69581f730180a7b7d6bd34a93eda"
         },
         "32bit": {
-            "url": "https://twilio-cli-prod.s3.amazonaws.com/twilio-win32-x86.tar.xz",
+            "url": "https://github.com/twilio/twilio-cli/releases/download/5.1.0/twilio-win32-x86.tar.xz",
             "hash": "b3befe1ea8f9249a94439d9f85226ef55d4ca8fcaf175ec5f725d15db589f5da"
         }
     },
     "bin": "twilio\\bin\\twilio.cmd",
     "checkver": {
-        "url": "https://twilio-cli-prod.s3.amazonaws.com/version",
+        "url": "https://github.com/twilio/twilio-cli/releases/latest/download/version",
         "jsonpath": "$.version"
     },
     "autoupdate": {
         "architecture": {
             "64bit": {
-                "url": "https://twilio-cli-prod.s3.amazonaws.com/twilio-win32-x64.tar.xz",
+                "url": "https://github.com/twilio/twilio-cli/releases/download/$version/twilio-win32-x64.tar.xz",
                 "hash": {
-                    "url": "https://twilio-cli-prod.s3.amazonaws.com/win32-x64",
+                    "url": "https://github.com/twilio/twilio-cli/releases/download/$version/win32-x64",
                     "jsonpath": "$.sha256xz"
                 }
             },
             "32bit": {
-                "url": "https://twilio-cli-prod.s3.amazonaws.com/twilio-win32-x86.tar.xz",
+                "url": "https://github.com/twilio/twilio-cli/releases/download/$version/twilio-win32-x86.tar.xz",
                 "hash": {
-                    "url": "https://twilio-cli-prod.s3.amazonaws.com/win32-x86",
+                    "url": "https://github.com/twilio/twilio-cli/releases/download/$version/win32-x86",
                     "jsonpath": "$.sha256xz"
                 }
             }
