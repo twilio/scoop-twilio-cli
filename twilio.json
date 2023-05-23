@@ -5,32 +5,32 @@
     "license": "MIT",
     "architecture": {
         "64bit": {
-            "url": "https://twilio-cli-prod.s3.amazonaws.com/twilio-win32-x64.tar.xz",
+            "url": "https://d10x3k7rlyta2i.cloudfront.net/twilio-win32-x64.tar.xz",
             "hash": "1d46b24cb86a5a9307edfc4a6e282e1104b4760dd48572c314fecdef1b755466"
         },
         "32bit": {
-            "url": "https://twilio-cli-prod.s3.amazonaws.com/twilio-win32-x86.tar.xz",
+            "url": "https://d10x3k7rlyta2i.cloudfront.net/twilio-win32-x86.tar.xz",
             "hash": "caf796f3c6ba2ab1453802e51fe94bbb7c3bc54faf460f12472fc92d3c588dbc"
         }
     },
     "bin": "twilio\\bin\\twilio.cmd",
     "checkver": {
-        "url": "https://twilio-cli-prod.s3.amazonaws.com/version",
+        "url": "https://d10x3k7rlyta2i.cloudfront.net/version",
         "jsonpath": "$.version"
     },
     "autoupdate": {
         "architecture": {
             "64bit": {
-                "url": "https://twilio-cli-prod.s3.amazonaws.com/twilio-win32-x64.tar.xz",
+                "url": "https://d10x3k7rlyta2i.cloudfront.net/twilio-win32-x64.tar.xz",
                 "hash": {
-                    "url": "https://twilio-cli-prod.s3.amazonaws.com/win32-x64",
+                    "url": "https://d10x3k7rlyta2i.cloudfront.net/win32-x64",
                     "jsonpath": "$.sha256xz"
                 }
             },
             "32bit": {
-                "url": "https://twilio-cli-prod.s3.amazonaws.com/twilio-win32-x86.tar.xz",
+                "url": "https://d10x3k7rlyta2i.cloudfront.net/twilio-win32-x86.tar.xz",
                 "hash": {
-                    "url": "https://twilio-cli-prod.s3.amazonaws.com/win32-x86",
+                    "url": "https://d10x3k7rlyta2i.cloudfront.net/win32-x86",
                     "jsonpath": "$.sha256xz"
                 }
             }
