@@ -16,7 +16,7 @@ $branch=git branch --show-current
 
 if ($git_status -ne $null) {
     git commit -m "Update manifest to version $version"
-    git push origin "$branch"
+    git push -f origin "$branch"
 } else {
     echo "No changes to commit";
     Exit 1
