@@ -6,11 +6,11 @@
     "architecture": {
         "64bit": {
             "url": "https://twilio-cli-prod.s3.amazonaws.com/twilio-win32-x64.tar.xz",
-            "hash": "6a40da5f0f726402310245bef56db5fbcaa3da9a48e4b13682af5f41777a0aa4"
+            "hash": "5b647871cdbbc0213f787ff1d95a72efef59957e1ead3cbe347eb1d124dcda67"
         },
         "32bit": {
             "url": "https://twilio-cli-prod.s3.amazonaws.com/twilio-win32-x86.tar.xz",
-            "hash": "588535522c8a63b068616de7141daf9dccb5ad5c93f82f9d421c28dc18c87f4b"
+            "hash": "9592a08721c5d19c597d55f16c99f0f8a249117c71a2d731fbffb6a046b12805"
         }
     },
     "bin": "twilio\\bin\\twilio.cmd",
