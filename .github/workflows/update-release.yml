@@ -13,7 +13,7 @@ jobs:
     env:
       SCOOP: 'C:\Scoop\user'
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
       - name: Install Scoop
         run: |
           (New-Object System.Net.WebClient).DownloadFile('https://get.scoop.sh', 'scoop.ps1') 
@@ -41,30 +41,33 @@ jobs:
           .\scripts\commit-release.ps1 -version ${{github.event.inputs.version}}
 
   release:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-x64
     needs: [update-and-verify]
+    permissions:
+      contents: write
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
       - name: Check for release type
         id: prereleaseflag
         run : |
-            echo "::set-output name=prerelease::${{ contains(github.event.inputs.version, 'draft' ) }}"  
-      - name: Create a GitHub release
-        uses: ncipollo/release-action@v1
-        with:
-          tag: ${{github.event.inputs.version}}
-          token: ${{ secrets.GITHUB_TOKEN }}
-          prerelease:  ${{ steps.prereleaseflag.outputs.prerelease }}
+            echo "::set-output name=prerelease::${{ contains(github.event.inputs.version, 'draft' ) }}"
+      - name: Create GitHub Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          ARGS=()
+          [ "${{ steps.prereleaseflag.outputs.prerelease }}" = "true" ] && ARGS+=(--prerelease)
+          gh release create "${{ github.event.inputs.version }}" --generate-notes "${ARGS[@]}"
   notify-complete-fail:
     if: ${{ failure() || cancelled() }}
     needs: [ release ]
     name: Notify Release Failed
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-x64
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
       - name: Slack Notification
-        uses: rtCamp/action-slack-notify@v2
+        uses: rtCamp/action-slack-notify@33ca3be66c6f378fe1610fd1d5258632dbed5e58 # v2.4.0
         env:
           SLACK_WEBHOOK: ${{ secrets.ALERT_SLACK_WEB_HOOK }}
           SLACK_COLOR: "#ff3333"
