@@ -16,15 +16,14 @@ jobs:
     name: Check Urls and Versions
     if: github.event_name == 'workflow_dispatch'
     runs-on: windows-latest-large
-    # The manifest update now opens a PR instead of pushing to main, so this
-    # job needs to push a branch and create a pull request.
-    permissions:
-      contents: write
-      pull-requests: write
     env:
       SCOOP: 'C:\Scoop\user'
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          # Persist the PAT so pushing the release branch uses the same
+          # credential that opens the PR.
+          token: ${{ secrets.REPO_ACCESS_TOKEN }}
       - name: Install Scoop
         run: |
           (New-Object System.Net.WebClient).DownloadFile('https://get.scoop.sh', 'scoop.ps1') 
@@ -48,14 +47,11 @@ jobs:
               Exit 1
           }
       - name: Commit Changes
-        # GH_TOKEN is needed because the manifest update now opens a PR rather
-        # than pushing to main. The version goes through env instead of being
-        # interpolated into the command.
         run: |
           .\scripts\commit-release.ps1 -version $env:VERSION
         env:
           VERSION: ${{ github.event.inputs.version }}
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.REPO_ACCESS_TOKEN }}
 
   # Runs on the merge of a manifest PR, so the tag lands on a commit that
   # actually contains the manifest update.
