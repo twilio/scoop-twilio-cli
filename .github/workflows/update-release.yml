@@ -1,5 +1,10 @@
 name: Update Manifest
 on:
+  # The manifest update lands as a PR, so the GitHub release is cut when that
+  # PR merges rather than in the dispatch run. Tagging in the dispatch run
+  # would point the tag at a commit that does not contain the manifest update.
+  push:
+    branches: [ main ]
   workflow_dispatch:
     inputs:
       version:
@@ -9,6 +14,7 @@ on:
 jobs:
   update-and-verify:
     name: Check Urls and Versions
+    if: github.event_name == 'workflow_dispatch'
     runs-on: windows-latest-large
     # The manifest update now opens a PR instead of pushing to main, so this
     # job needs to push a branch and create a pull request.
@@ -51,25 +57,37 @@ jobs:
           VERSION: ${{ github.event.inputs.version }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+  # Runs on the merge of a manifest PR, so the tag lands on a commit that
+  # actually contains the manifest update.
   release:
+    if: >-
+      github.event_name == 'push' &&
+      startsWith(github.event.head_commit.message, 'Update manifest to version ')
     runs-on: ubuntu-x64
-    needs: [update-and-verify]
     permissions:
       contents: write
     steps:
       - name: Checkout Repo
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
-      - name: Check for release type
-        id: prereleaseflag
-        run : |
-            echo "::set-output name=prerelease::${{ contains(github.event.inputs.version, 'draft' ) }}"
       - name: Create GitHub Release
+        # The dispatch input is gone by now, so the version comes from the
+        # commit subject commit-release.ps1 wrote ("Update manifest to version
+        # <version>"). A squash merge appends " (#N)", which is stripped here.
+        # The draft check is unchanged, just applied to the parsed version.
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
         run: |
+          subject=$(printf '%s' "$COMMIT_MESSAGE" | head -1)
+          version=$(printf '%s' "$subject" | sed -E 's/^Update manifest to version ([^ ]+).*/\1/')
+          if [ -z "$version" ] || [ "$version" = "$subject" ]; then
+            echo "::error::Could not parse a version from: $subject"
+            exit 1
+          fi
+          echo "Releasing $version"
           ARGS=()
-          [ "${{ steps.prereleaseflag.outputs.prerelease }}" = "true" ] && ARGS+=(--prerelease)
-          gh release create "${{ github.event.inputs.version }}" --generate-notes "${ARGS[@]}"
+          case "$version" in *draft*) ARGS+=(--prerelease) ;; esac
+          gh release create "$version" --generate-notes "${ARGS[@]}"
 #  notify-complete-fail:
 #    if: ${{ failure() || cancelled() }}
 #    needs: [ release ]
