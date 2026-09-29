@@ -1,0 +1,96 @@
+name: Install twilio-cli via Scoop
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Specific twilio-cli version to install (leave blank for latest)'
+        required: false
+        default: ''
+
+permissions:
+  contents: read
+
+jobs:
+  install:
+    name: Install twilio from the published bucket
+    runs-on: windows-latest-large
+    defaults:
+      run:
+        shell: powershell
+    env:
+      SCOOP: 'C:\Scoop\user'
+    steps:
+      - name: Confirm PowerShell is elevated
+        run: |
+          $identity = [Security.Principal.WindowsIdentity]::GetCurrent()
+          $principal = New-Object Security.Principal.WindowsPrincipal($identity)
+          $isAdmin = $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+          Write-Host "Running as: $($identity.Name)"
+          Write-Host "Elevated:   $isAdmin"
+          if (-not $isAdmin) {
+              Write-Error "This job must run in an elevated PowerShell session."
+              exit 1
+          }
+
+      - name: Install Scoop as admin
+        run: |
+          (New-Object System.Net.WebClient).DownloadFile('https://get.scoop.sh', 'scoop.ps1')
+          ./scoop.ps1 -RunAsAdmin
+          echo "$env:SCOOP\shims" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+
+      - name: Add the twilio-scoop bucket
+        run: |
+          scoop bucket add twilio-scoop https://github.com/twilio/scoop-twilio-cli
+          scoop bucket list
+
+      - name: Install twilio-cli
+        env:
+          VERSION: ${{ inputs.version }}
+        run: |
+          if ([string]::IsNullOrWhiteSpace($env:VERSION)) {
+              Write-Host "Installing latest twilio"
+              scoop install twilio
+          } else {
+              Write-Host "Installing twilio@$env:VERSION"
+              scoop install "twilio@$env:VERSION"
+          }
+          if ($LASTEXITCODE -ne 0) {
+              Write-Error "scoop install failed with exit code $LASTEXITCODE"
+              exit 1
+          }
+
+      - name: Verify the install
+        env:
+          VERSION: ${{ inputs.version }}
+        run: |
+          scoop list
+          $output = twilio --version 2>&1 | Out-String
+          if ($LASTEXITCODE -ne 0) {
+              Write-Error "'twilio --version' exited with $LASTEXITCODE"
+              exit 1
+          }
+          $output = $output.Trim()
+          if ([string]::IsNullOrWhiteSpace($output)) {
+              Write-Error "'twilio --version' produced no output"
+              exit 1
+          }
+          Write-Host "twilio --version -> $output"
+          if (-not [string]::IsNullOrWhiteSpace($env:VERSION)) {
+              if ($output -notmatch [regex]::Escape($env:VERSION)) {
+                  Write-Error "Expected version '$env:VERSION' but got '$output'"
+                  exit 1
+              }
+          }
+
+      - name: Diagnostics on failure
+        if: failure()
+        run: |
+          Write-Host '--- scoop cache ---'
+          scoop cache list
+          Write-Host '--- installed apps ---'
+          if (Test-Path "$env:SCOOP\apps") {
+              Get-ChildItem -Recurse -Depth 2 "$env:SCOOP\apps"
+          } else {
+              Write-Host "No apps directory at $env:SCOOP\apps"
+          }
