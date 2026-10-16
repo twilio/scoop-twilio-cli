@@ -94,3 +94,11 @@ jobs:
           } else {
               Write-Host "No apps directory at $env:SCOOP\apps"
           }
+
+          Write-Host '--- 7zip logs ---'
+          Get-ChildItem -Recurse -Filter 7zip.log "$env:SCOOP\apps" -ErrorAction SilentlyContinue | ForEach-Object {
+              Write-Host "=== $($_.FullName) ==="
+              Get-Content $_.FullName
+          }
+          Write-Host '--- 7zip version ---'
+          scoop list 7zip
